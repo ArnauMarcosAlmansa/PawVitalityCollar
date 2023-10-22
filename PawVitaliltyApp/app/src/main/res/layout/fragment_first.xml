@@ -26,33 +26,30 @@
             android:id="@+id/textview_first"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:layout_marginTop="16dp"
             android:text="@string/lorem_ipsum"
             app:layout_constraintBottom_toBottomOf="parent"
             app:layout_constraintEnd_toEndOf="parent"
-            app:layout_constraintHorizontal_bias="1.0"
             app:layout_constraintStart_toStartOf="parent"
-            app:layout_constraintTop_toTopOf="parent"
-            app:layout_constraintVertical_bias="0.227" />
+            app:layout_constraintTop_toBottomOf="@+id/textview_bt" />
 
         <TextView
             android:id="@+id/textview_bt"
             android:layout_width="374dp"
-            android:layout_height="39dp"
+            android:layout_height="45dp"
             android:background="@drawable/rounded_corner"
             android:fontFamily="sans-serif"
             android:gravity="center_vertical"
             android:hapticFeedbackEnabled="true"
-            android:paddingLeft="40sp"
-            android:text="Bluetooth is turned off"
+            android:paddingStart="40sp"
             android:textColor="@color/white"
             android:textSize="20sp"
             android:typeface="sans"
+            android:visibility="invisible"
             app:layout_constraintBottom_toTopOf="@+id/textview_first"
             app:layout_constraintEnd_toEndOf="parent"
-            app:layout_constraintHorizontal_bias="0.516"
             app:layout_constraintStart_toStartOf="parent"
             app:layout_constraintTop_toTopOf="parent"
-            app:layout_constraintVertical_bias="1.0" />
+            tools:ignore="RtlSymmetry" />
+
     </androidx.constraintlayout.widget.ConstraintLayout>
 </androidx.core.widget.NestedScrollView>

@@ -1,5 +1,8 @@
 package com.example.pawvitalityapp
 
+import android.bluetooth.BluetoothAdapter
+import android.bluetooth.BluetoothManager
+import android.content.Intent
 import android.os.Bundle
 import com.google.android.material.snackbar.Snackbar
 import androidx.appcompat.app.AppCompatActivity
@@ -9,6 +12,9 @@ import androidx.navigation.ui.navigateUp
 import androidx.navigation.ui.setupActionBarWithNavController
 import android.view.Menu
 import android.view.MenuItem
+import android.view.View
+import android.widget.TextView
+import androidx.navigation.fragment.findNavController
 import com.example.pawvitalityapp.databinding.ActivityMainBinding
 
 class MainActivity : AppCompatActivity() {
@@ -31,6 +37,19 @@ class MainActivity : AppCompatActivity() {
         binding.fab.setOnClickListener { view ->
             Snackbar.make(view, "Replace with your own action", Snackbar.LENGTH_LONG)
                 .setAction("Action", null).show()
+        }
+
+        val bluetoothManager: BluetoothManager = getSystemService(BluetoothManager::class.java)
+        val bluetoothAdapter: BluetoothAdapter? = bluetoothManager.getAdapter()
+        if (bluetoothAdapter?.isEnabled == false) {
+            val btTextView = findViewById<TextView>(R.id.textview_bt)
+            btTextView.text = "Bluetooth is turned off"
+            btTextView.visibility = View.VISIBLE
+        }
+        if (bluetoothAdapter == null) {
+            val btTextView = findViewById<TextView>(R.id.textview_bt)
+            btTextView.text = "Device doesn't support Bluetooth"
+            btTextView.visibility = View.VISIBLE
         }
     }
 
