@@ -30,7 +30,7 @@ class SensorsBLEReceiveManager @Inject constructor(
 ) : SensorsReceiveManager {
 
     // MIRAR AL USER MANUAL DEL DEVICE ELS CODIS
-    private val DEVICE_NAME = "placeholder"
+    private val DEVICE_NAME = "PawVitality"
     private val TEMP_SERVICE_UUID = "0000xxxx-0000-1000-8000-00805f9b34fb"
     private val TEMP_CHARACTERISTICS_UUID = "0000xxxx-0000-1000-8000-00805f9b34fb"
 
@@ -171,8 +171,7 @@ class SensorsBLEReceiveManager @Inject constructor(
 
     private fun writeDescription(descriptor: BluetoothGattDescriptor, payload: ByteArray){
         gatt?.let { gatt ->
-            descriptor.value = payload
-            gatt.writeDescriptor(descriptor)
+            gatt.writeDescriptor(descriptor, payload)
         }?: error("Not connected to a BLE device!")
     }
 
