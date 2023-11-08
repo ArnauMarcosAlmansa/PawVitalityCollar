@@ -95,12 +95,18 @@ dependencies {
     implementation("androidx.compose.runtime:runtime-rxjava2")
 
     //DI
-    implementation("com.google.dagger:hilt-android:2.44")
-    kapt("com.google.dagger:hilt-android-compiler:2.44")
+    implementation("com.google.dagger:hilt-android:2.48.1")
+    kapt("com.google.dagger:hilt-compiler:2.48.1")
+    kapt("androidx.hilt:hilt-compiler:1.0.0")
+    implementation("androidx.hilt:hilt-navigation-compose:1.0.0")
+
 
     //Navigation
     val nav_version = "2.7.4"
     implementation("androidx.navigation:navigation-compose:$nav_version")
+
+    //Permissions
+    implementation("com.google.accompanist:accompanist-permissions:0.32.0")
 }
 
 // Allow references to generated code
