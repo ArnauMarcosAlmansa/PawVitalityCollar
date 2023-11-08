@@ -31,8 +31,10 @@ class SensorsBLEReceiveManager @Inject constructor(
 
     // MIRAR AL USER MANUAL DEL DEVICE ELS CODIS
     private val DEVICE_NAME = "PawVitality"
-    private val TEMP_SERVICE_UUID = "0000xxxx-0000-1000-8000-00805f9b34fb"
-    private val TEMP_CHARACTERISTICS_UUID = "0000xxxx-0000-1000-8000-00805f9b34fb"
+//    private val TEMP_SERVICE_UUID = "0000xxxx-0000-1000-8000-00805f9b34fb"
+    private val TEMP_SERVICE_UUID = "0000bde2-081b-4f83-bde2-753e72b34f84"
+//    private val TEMP_CHARACTERISTICS_UUID = "0000xxxx-0000-1000-8000-00805f9b34fb"
+    private val TEMP_CHARACTERISTICS_UUID = "0000bde2-081b-4f83-bde2-753e72b34f84"
 
     override val data: MutableSharedFlow<Resource<SensorsResult>> = MutableSharedFlow()
 
@@ -106,10 +108,29 @@ class SensorsBLEReceiveManager @Inject constructor(
         override fun onServicesDiscovered(gatt: BluetoothGatt, status: Int) {
             with(gatt){
                 printGattTable()
-                coroutineScope.launch {
-                    data.emit(Resource.Loading(message = "Adjusting MTU space..."))
+//                coroutineScope.launch {
+//                    data.emit(Resource.Loading(message = "Adjusting MTU space..."))
+//                }
+//                gatt.requestMtu(20)
+
+                val characteristic = findCharacteristics(TEMP_SERVICE_UUID, TEMP_CHARACTERISTICS_UUID)
+                if(characteristic == null){
+                    coroutineScope.launch {
+                        data.emit(Resource.Error(errorMessage = "Could not find temp publisher"))
+                    }
+                    return
+                } else {
+                    coroutineScope.launch {
+                        data.emit(Resource.Success(
+                            SensorsResult(
+                                0.0f,
+                                ConnectionState.Connected
+                            )
+                        ))
+                    }
                 }
-                gatt.requestMtu(517)
+
+                enableNotification(characteristic)
             }
         }
 
@@ -176,8 +197,10 @@ class SensorsBLEReceiveManager @Inject constructor(
 
     private fun findCharacteristics(serviceUUID:String, characteristicUUID:String):BluetoothGattCharacteristic?{
         return gatt?.services?.find { service ->
+            Log.d("service UUID", service.uuid.toString())
             service.uuid.toString() == serviceUUID
         }?.characteristics?.find { characteristics ->
+            Log.d("characteristics UUID", characteristics.uuid.toString())
             characteristics.uuid.toString() == characteristicUUID
         }
 

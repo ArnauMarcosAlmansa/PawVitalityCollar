@@ -1,5 +1,6 @@
 package com.example.pawvitalityapp.presentation
 
+import android.util.Log
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.setValue
@@ -35,14 +36,20 @@ class SensorsViewModel @Inject constructor(
                     is Resource.Success -> {
                         connectionState = result.data.connectionState
                         temperature = result.data.temperature
+
+                        Log.d("APP SUCCESS", "${temperature}")
                     }
                     is Resource.Loading -> {
                         initializingMessage = result.message
                         connectionState = ConnectionState.CurrentlyInitializing
+
+                        Log.d("APP LOADING", initializingMessage!!)
                     }
                     is Resource.Error -> {
                         errorMessage = result.errorMessage
                         connectionState = ConnectionState.Uninitialized
+
+                        Log.e("APP ERROR", errorMessage!!)
                     }
                 }
             }

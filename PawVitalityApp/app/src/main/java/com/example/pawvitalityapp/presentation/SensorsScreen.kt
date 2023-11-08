@@ -152,6 +152,12 @@ fun SensorsScreen(
                         style = MaterialTheme.typography.h6
                     )
                 }
+            } else if (bleConnectionState == ConnectionState.Disconnected) {
+                Button(onClick = {
+                    viewModel.initializeConnection()
+                }) {
+                    Text(text = "Initialize again")
+                }
             }
         }
     }
