@@ -63,6 +63,10 @@
 #include "nrf_ble_gatt.h"
 #include "nrf_ble_qwr.h"
 #include "nrf_pwr_mgmt.h"
+#include "nrf_delay.h"
+#include "app_error.h"
+#include "nrf_drv_rng.h"
+#include "nrf_assert.h"
 
 #include "nrf_log.h"
 #include "nrf_log_ctrl.h"
@@ -137,6 +141,8 @@ struct ble_paw_t m_paw;
 
 struct ble_paw_data_t m_data;
 
+uint8_t random_byte();
+
 size_t ble_paw_samples_to_buffsize(int samples)
 {
     return samples * (1 + 1 + 2 + 2 + 2 + 2);
@@ -183,8 +189,8 @@ uint32_t ble_paw_init(struct ble_paw_t * p_paw, const struct ble_paw_init_t * p_
     memset(&add_char_params, 0, sizeof(add_char_params));
     add_char_params.uuid              = 0xBDE2;
     add_char_params.uuid_type         = p_paw->uuid_type;
-    add_char_params.init_len          = 3;
-    add_char_params.max_len           = 3;
+    add_char_params.init_len          = 4;
+    add_char_params.max_len           = 4;
     add_char_params.char_props.read   = 1;
     add_char_params.char_props.notify = 1;
 
@@ -207,12 +213,20 @@ uint32_t ble_paw_send_data(uint16_t conn_handle, struct ble_paw_t * p_paw, struc
     ble_gatts_hvx_params_t params;
     //uint16_t len = ble_paw_samples_to_buffsize(SAMPLES);
 
-    uint16_t len = 3;
+    uint16_t len = 4;
 
     ble_paw_data_to_buffer(data, sending_buffer);
-    sending_buffer[0] = 1;
-    sending_buffer[1] = 15;
-    sending_buffer[2] = 7;
+    sending_buffer[0] = 0;
+    //sending_buffer[1] = random_byte() % 5 + 30;
+    //sending_buffer[2] = random_byte() % 10;
+
+    //sending_buffer[3] = random_byte() % 20 + 60;
+    
+    sending_buffer[1] = 7 % 5 + 30;
+    sending_buffer[2] = 7 % 10;
+
+    sending_buffer[3] = 7 % 20 + 60;
+
 
     memset(&params, 0, sizeof(params));
     params.type   = BLE_GATT_HVX_NOTIFICATION;
@@ -231,6 +245,22 @@ uint32_t ble_paw_on_button_change(uint16_t conn_handle, struct ble_paw_t * p_paw
 
 
 
+
+//uint8_t random_byte()
+//{
+//    uint8_t random = 0;
+//    uint8_t available;
+
+//    nrf_drv_rng_bytes_available(&available);
+//    uint8_t length = MIN(1, available);
+    
+//    if (length > 0) {
+//      uint32_t err_code = nrf_drv_rng_rand(&random, length);
+//      APP_ERROR_CHECK(err_code);
+//    }
+
+//    return random;
+//}
 
 
 static uint16_t m_conn_handle = BLE_CONN_HANDLE_INVALID;                        /**< Handle of the current connection. */
