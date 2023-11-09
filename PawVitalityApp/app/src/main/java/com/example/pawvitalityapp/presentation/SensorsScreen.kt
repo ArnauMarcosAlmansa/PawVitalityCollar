@@ -35,6 +35,11 @@ import com.google.accompanist.permissions.rememberMultiplePermissionsState
 import androidx.hilt.navigation.compose.hiltViewModel
 
 
+fun yesNo(bool: Boolean): String {
+    return if (bool) "Yes" else "No"
+}
+
+
 @OptIn(ExperimentalPermissionsApi::class)
 @Composable
 fun SensorsScreen(
@@ -148,7 +153,23 @@ fun SensorsScreen(
                     horizontalAlignment = Alignment.CenterHorizontally
                 ) {
                     Text(
-                        text = "Temperature: ${viewModel.temperature}ºC",
+                        text = "Heart Rate: ${viewModel.heartRate} bpm",
+                        style = MaterialTheme.typography.h6
+                    )
+                    Text(
+                        text = "Temperature: ${viewModel.temperature} ºC",
+                        style = MaterialTheme.typography.h6
+                    )
+                    Text(
+                        text = "Breath rate: ${viewModel.breathRate}",
+                        style = MaterialTheme.typography.h6
+                    )
+                    Text(
+                        text = "Barking: ${yesNo(viewModel.barking)}",
+                        style = MaterialTheme.typography.h6
+                    )
+                    Text(
+                        text = "Moving: ${yesNo(viewModel.moving)}",
                         style = MaterialTheme.typography.h6
                     )
                 }

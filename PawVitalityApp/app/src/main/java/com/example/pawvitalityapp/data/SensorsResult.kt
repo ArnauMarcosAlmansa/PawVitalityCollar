@@ -2,5 +2,9 @@ package com.example.pawvitalityapp.data
 
 data class SensorsResult(
     val temperature:Float,
-    val connectionState: ConnectionState
+    val heartRate: Int,
+    val breathRate: Int,
+    val moving: Boolean,
+    val barking: Boolean,
+    val connectionState: ConnectionState,
 )

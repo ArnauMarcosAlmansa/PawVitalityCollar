@@ -27,6 +27,19 @@ class SensorsViewModel @Inject constructor(
     var temperature by mutableStateOf(0f)
         private set
 
+    var heartRate by mutableStateOf(0)
+        private set
+
+    var breathRate by mutableStateOf(0)
+        private set
+
+    var barking by mutableStateOf(false)
+        private set
+
+    var moving by mutableStateOf(false)
+        private set
+
+
     var connectionState by mutableStateOf<ConnectionState>(ConnectionState.Uninitialized)
 
     private fun subscribeToChanges(){
@@ -36,6 +49,10 @@ class SensorsViewModel @Inject constructor(
                     is Resource.Success -> {
                         connectionState = result.data.connectionState
                         temperature = result.data.temperature
+                        heartRate = result.data.heartRate
+                        breathRate = result.data.breathRate
+                        moving = result.data.moving
+                        barking = result.data.barking
 
                         Log.d("APP SUCCESS", "${temperature}")
                     }

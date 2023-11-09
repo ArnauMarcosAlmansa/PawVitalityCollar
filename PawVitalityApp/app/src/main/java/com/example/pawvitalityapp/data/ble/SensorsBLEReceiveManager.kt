@@ -81,7 +81,7 @@ class SensorsBLEReceiveManager @Inject constructor(
                     this@SensorsBLEReceiveManager.gatt = gatt
                 }else if(newState == BluetoothProfile.STATE_DISCONNECTED){
                     coroutineScope.launch {
-                        data.emit(Resource.Success(data = SensorsResult(0f, ConnectionState.Disconnected)))
+                        data.emit(Resource.Success(data = SensorsResult(0f, 0, 0, false, false, ConnectionState.Disconnected)))
                     }
                     gatt.close()
                 }
@@ -116,7 +116,7 @@ class SensorsBLEReceiveManager @Inject constructor(
                 val characteristic = findCharacteristics(TEMP_SERVICE_UUID, TEMP_CHARACTERISTICS_UUID)
                 if(characteristic == null){
                     coroutineScope.launch {
-                        data.emit(Resource.Error(errorMessage = "Could not find temp publisher"))
+                        data.emit(Resource.Error(errorMessage = "Could not find sensors publisher"))
                     }
                     return
                 } else {
@@ -124,6 +124,10 @@ class SensorsBLEReceiveManager @Inject constructor(
                         data.emit(Resource.Success(
                             SensorsResult(
                                 0.0f,
+                                0,
+                                0,
+                                false,
+                                false,
                                 ConnectionState.Connected
                             )
                         ))
@@ -153,11 +157,30 @@ class SensorsBLEReceiveManager @Inject constructor(
             with(characteristic){
                 when(uuid){
                     UUID.fromString(TEMP_CHARACTERISTICS_UUID) -> {
+
+                        Log.d("VALUE[0]", value[0].toString())
+                        Log.d("VALUE[1]", value[1].toString())
+                        Log.d("VALUE[2]", value[2].toString())
+                        Log.d("VALUE[3]", value[3].toString())
+                        Log.d("VALUE[4]", value[4].toString())
+                        Log.d("VALUE[5]", value[5].toString())
+                        Log.d("VALUE[6]", value[6].toString())
+
+
                         // MIRAR AL MANUAL EL FORMAT DE LA TEMPERATURA
                         val multiplicator = if(value.first().toInt()> 0) -1 else 1
                         val temperature = value[1].toInt() + value[2].toInt() / 10f
+                        val heartRate = value[3].toInt()
+                        val breathRate = value[4].toInt()
+                        val moving = value[5].toInt() > 0
+                        val barking = value[6].toInt() > 0
+
                         val sensorsResult = SensorsResult(
                             multiplicator * temperature,
+                            heartRate,
+                            breathRate,
+                            moving,
+                            barking,
                             ConnectionState.Connected
                         )
                         coroutineScope.launch {
@@ -208,7 +231,7 @@ class SensorsBLEReceiveManager @Inject constructor(
 
     override fun startReceiving() {
         coroutineScope.launch {
-            data.emit(Resource.Loading(message = "Scanning Ble devices..."))
+            data.emit(Resource.Loading(message = "Scanning for devices..."))
         }
         isScanning = true
         bleScanner.startScan(null,scanSettings,scanCallback)
