@@ -189,8 +189,8 @@ uint32_t ble_paw_init(struct ble_paw_t * p_paw, const struct ble_paw_init_t * p_
     memset(&add_char_params, 0, sizeof(add_char_params));
     add_char_params.uuid              = 0xBDE2;
     add_char_params.uuid_type         = p_paw->uuid_type;
-    add_char_params.init_len          = 4;
-    add_char_params.max_len           = 4;
+    add_char_params.init_len          = 7;
+    add_char_params.max_len           = 7;
     add_char_params.char_props.read   = 1;
     add_char_params.char_props.notify = 1;
 
@@ -213,20 +213,31 @@ uint32_t ble_paw_send_data(uint16_t conn_handle, struct ble_paw_t * p_paw, struc
     ble_gatts_hvx_params_t params;
     //uint16_t len = ble_paw_samples_to_buffsize(SAMPLES);
 
-    uint16_t len = 4;
+    uint16_t len = 7;
 
     ble_paw_data_to_buffer(data, sending_buffer);
+
+    // temperature
     sending_buffer[0] = 0;
     //sending_buffer[1] = random_byte() % 5 + 30;
     //sending_buffer[2] = random_byte() % 10;
 
     //sending_buffer[3] = random_byte() % 20 + 60;
     
-    sending_buffer[1] = 7 % 5 + 30;
-    sending_buffer[2] = 7 % 10;
+    sending_buffer[1] = random_byte() % 5 + 30;
+    sending_buffer[2] = random_byte() % 10;
 
-    sending_buffer[3] = 7 % 20 + 60;
+    // heart rate
+    sending_buffer[3] = random_byte() % 20 + 60;
 
+    // breath rate
+    sending_buffer[4] = random_byte() % 20 + 10;
+
+    // moving
+    sending_buffer[5] = random_byte() % 2;
+
+    // barking
+    sending_buffer[6] = random_byte() % 2;
 
     memset(&params, 0, sizeof(params));
     params.type   = BLE_GATT_HVX_NOTIFICATION;
@@ -246,21 +257,21 @@ uint32_t ble_paw_on_button_change(uint16_t conn_handle, struct ble_paw_t * p_paw
 
 
 
-//uint8_t random_byte()
-//{
-//    uint8_t random = 0;
-//    uint8_t available;
+uint8_t random_byte()
+{
+    uint8_t random = 0;
+    uint8_t available;
 
-//    nrf_drv_rng_bytes_available(&available);
-//    uint8_t length = MIN(1, available);
+    nrf_drv_rng_bytes_available(&available);
+    uint8_t length = MIN(1, available);
     
-//    if (length > 0) {
-//      uint32_t err_code = nrf_drv_rng_rand(&random, length);
-//      APP_ERROR_CHECK(err_code);
-//    }
+    if (length > 0) {
+      uint32_t err_code = nrf_drv_rng_rand(&random, length);
+      APP_ERROR_CHECK(err_code);
+    }
 
-//    return random;
-//}
+    return random;
+}
 
 
 static uint16_t m_conn_handle = BLE_CONN_HANDLE_INVALID;                        /**< Handle of the current connection. */
@@ -658,13 +669,15 @@ static void button_event_handler(uint8_t pin_no, uint8_t button_action)
     {
         case LEDBUTTON_BUTTON:
             NRF_LOG_INFO("Send button state change.");
-            err_code = ble_paw_send_data(m_conn_handle, &m_paw, &m_data);
-            if (err_code != NRF_SUCCESS &&
-                err_code != BLE_ERROR_INVALID_CONN_HANDLE &&
-                err_code != NRF_ERROR_INVALID_STATE &&
-                err_code != BLE_ERROR_GATTS_SYS_ATTR_MISSING)
-            {
-                APP_ERROR_CHECK(err_code);
+            if (button_action == 1) {
+                err_code = ble_paw_send_data(m_conn_handle, &m_paw, &m_data);
+                if (err_code != NRF_SUCCESS &&
+                    err_code != BLE_ERROR_INVALID_CONN_HANDLE &&
+                    err_code != NRF_ERROR_INVALID_STATE &&
+                    err_code != BLE_ERROR_GATTS_SYS_ATTR_MISSING)
+                {
+                    APP_ERROR_CHECK(err_code);
+                }
             }
             break;
 
@@ -729,7 +742,11 @@ static void idle_state_handle(void)
  */
 int main(void)
 {
+    
+
     // Initialize.
+    uint32_t err_code = nrf_drv_rng_init(NULL);
+    APP_ERROR_CHECK(err_code);
     log_init();
     leds_init();
     timers_init();
@@ -741,6 +758,8 @@ int main(void)
     services_init();
     advertising_init();
     conn_params_init();
+
+    //uint8_t b = random_byte();
 
     // Start execution.
     NRF_LOG_INFO("Blinky example started.");
