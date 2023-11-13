@@ -1,0 +1,29 @@
+{
+  "project_info": {
+    "project_number": "949184817879",
+    "project_id": "pawvitality",
+    "storage_bucket": "pawvitality.appspot.com"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:949184817879:android:12cb033359a4c6cfd85e92",
+        "android_client_info": {
+          "package_name": "com.pawvitality.pawvitalityapp"
+        }
+      },
+      "oauth_client": [],
+      "api_key": [
+        {
+          "current_key": "AIzaSyCndqssl6vfnBQLOSF6ovjRqbNinaDgmV8"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": []
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}
