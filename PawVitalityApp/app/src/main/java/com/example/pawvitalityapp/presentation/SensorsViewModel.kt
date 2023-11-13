@@ -9,6 +9,8 @@ import androidx.lifecycle.viewModelScope
 import com.example.pawvitalityapp.data.ConnectionState
 import com.example.pawvitalityapp.data.SensorsReceiveManager
 import com.example.pawvitalityapp.util.Resource
+import com.google.firebase.database.ktx.database
+import com.google.firebase.ktx.Firebase
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.launch
 import javax.inject.Inject
@@ -41,6 +43,9 @@ class SensorsViewModel @Inject constructor(
 
 
     var connectionState by mutableStateOf<ConnectionState>(ConnectionState.Uninitialized)
+    // Write a message to the database
+    val database = Firebase.database("https://pawvitality-default-rtdb.europe-west1.firebasedatabase.app")
+    val myRef = database.getReference("temperature")
 
     private fun subscribeToChanges(){
         viewModelScope.launch {
@@ -55,6 +60,8 @@ class SensorsViewModel @Inject constructor(
                         barking = result.data.barking
 
                         Log.d("APP SUCCESS", "${temperature}")
+
+                        myRef.setValue(temperature)
                     }
                     is Resource.Loading -> {
                         initializingMessage = result.message
