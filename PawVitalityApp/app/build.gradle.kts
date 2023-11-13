@@ -7,11 +7,11 @@ plugins {
 }
 
 android {
-    namespace = "com.example.pawvitalityapp"
+    namespace = "com.pawvitality.pawvitalityapp"
     compileSdk = 34
 
     defaultConfig {
-        applicationId = "com.example.pawvitalityapp"
+        applicationId = "com.pawvitality.pawvitalityapp"
         minSdk = 33
         targetSdk = 34
         versionCode = 1
