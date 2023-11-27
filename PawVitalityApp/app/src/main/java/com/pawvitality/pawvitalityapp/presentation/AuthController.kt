@@ -8,6 +8,11 @@ class AuthController {
 
     fun authenticate(email: String, password: String): Boolean {
         isAuthenticated = email.isNotBlank() && password.isNotBlank()
+        if (!isAuthenticated) {
+            return false;
+        }
+
+
         return isAuthenticated
     }
 

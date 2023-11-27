@@ -1,6 +1,7 @@
 package com.pawvitality.pawvitalityapp.presentation
 
 import android.util.Log
+import android.widget.Toast
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.fillMaxSize
@@ -21,17 +22,47 @@ import androidx.navigation.NavController
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.setValue
+import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.text.input.PasswordVisualTransformation
 import androidx.compose.ui.unit.dp
+import androidx.lifecycle.LiveData
+import androidx.lifecycle.MutableLiveData
+import androidx.lifecycle.ViewModel
+import androidx.lifecycle.viewModelScope
+import com.google.firebase.auth.FirebaseAuth
+import com.google.firebase.auth.ktx.auth
+import com.google.firebase.ktx.Firebase
+import kotlinx.coroutines.flow.MutableStateFlow
+import kotlinx.coroutines.launch
 
 
-class LoginScreenState {
-    var email: String = "";
-    var password: String = "";
+class LoginScreenState(val navController: NavController): ViewModel() {
+    var auth = Firebase.auth;
+
+    fun login(email: String, password: String) {
+        viewModelScope.launch {
+            try {
+                auth.signInWithEmailAndPassword(email, password)
+                    .addOnCompleteListener { task ->
+                        if (task.isSuccessful) {
+                            Log.d("LOGIN", "login ok")
+                            navController.navigate("start_screen")
+                        } else {
+                            Log.d("LOGIN", "login fail")
+                        }
+                    }
+            } catch (ex: Exception) {
+                Log.d("LOGIN", "login exception")
+            }
+        }
+    }
 }
 
 @Composable
 fun LoginScreen(navController: NavController, authController: AuthController) {
+    val state by remember {
+        mutableStateOf(LoginScreenState(navController))
+    }
 
     var email by remember { mutableStateOf("") }
     var password by remember { mutableStateOf("") }
@@ -57,16 +88,13 @@ fun LoginScreen(navController: NavController, authController: AuthController) {
             Button(
                 modifier = Modifier.width(300.dp),
                 onClick = {
-                    if (authController.authenticate(
-                            email,
-                            password
-                        )
-                    ) {
-                        navController.navigate("start_screen")
-                    }
+                    state.login(
+                        email,
+                        password
+                    )
                 }
             ) {
-                Text(text = "Sign up", fontSize = 20.sp)
+                Text(text = "Login", fontSize = 20.sp)
             }
             Text(text = "Don't have an account?")
             Button(onClick = { navController.navigate("signup_screen") }) {
