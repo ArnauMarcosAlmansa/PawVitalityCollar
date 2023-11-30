@@ -15,7 +15,13 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.navigation.NavController
+import com.google.firebase.database.ktx.database
+import com.google.firebase.ktx.Firebase
+import java.text.SimpleDateFormat
+import java.util.Date
+import java.util.Locale
 
 @Composable
 fun StartScreen(
@@ -32,11 +38,13 @@ fun StartScreen(
                 .clip(CircleShape)
                 .background(Color.Blue, CircleShape)
                 .clickable {
-                    navController.navigate(Screen.SensorsScreen.route){
-                        popUpTo(Screen.StartScreen.route){
-                            inclusive = true
-                        }
-                    }
+                    // TODO: Uncomment
+                    //navController.navigate(Screen.SensorsScreen.route){
+                    //   popUpTo(Screen.StartScreen.route){
+                    //      inclusive = true
+                    //}
+                    //}
+                    sendDataToFirebase(7.2, 2, 5, true, true)
                 },
             contentAlignment = Alignment.Center
         ){
@@ -48,7 +56,24 @@ fun StartScreen(
             )
         }
     }
+}
 
+private fun sendDataToFirebase(
+    temperature: Double, heartRate: Int, breathRate: Int
+    , moving: Boolean, barking: Boolean)
+{
+    val database = Firebase.database("https://pawvitality-default-rtdb.europe-west1.firebasedatabase.app")
+    val dateFormat = SimpleDateFormat("yyyy-MM-dd HH:mm:ss", Locale.getDefault())
+    val timestamp = dateFormat.format(Date())
+    val dbRef = database.reference.child(LoginScreenState.email).child(timestamp)
+    val data = mapOf(
+        "temperature" to temperature,
+        "heartRate" to heartRate,
+        "breathRate" to breathRate,
+        "moving" to moving,
+        "barking" to barking
+    )
+    dbRef.setValue(data)
 }
 
 

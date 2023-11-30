@@ -23,26 +23,26 @@ import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.text.input.PasswordVisualTransformation
 import androidx.compose.ui.unit.dp
+import androidx.hilt.navigation.compose.hiltViewModel
 
 @Composable
-fun SignupScreen(navController: NavController, authController: AuthController) {
-
-    var email by remember { mutableStateOf("") }
-    var password by remember { mutableStateOf("") }
-
+fun SignupScreen(
+    navController: NavController, authController: AuthController,
+    viewModel: LoginViewModel = hiltViewModel()
+) {
     Box(
         modifier = Modifier.fillMaxSize(),
         contentAlignment = Alignment.Center
     ) {
         Column {
-            OutlinedTextField(value = email,
-                onValueChange = { email = it; Log.d("EMAIL INPUT", it) },
+            OutlinedTextField(value = viewModel.email.value,
+                onValueChange = { viewModel.email.value = it; Log.d("EMAIL INPUT", it) },
                 label = {
                     Text(text = "Email")
                 })
             OutlinedTextField(
-                value = password,
-                onValueChange = { password = it },
+                value = viewModel.password.value,
+                onValueChange = { viewModel.password.value = it },
                 label = {
                     Text(text = "Password")
                 },
@@ -52,8 +52,8 @@ fun SignupScreen(navController: NavController, authController: AuthController) {
                 modifier = Modifier.width(300.dp),
                 onClick = {
                     if (authController.authenticate(
-                            email,
-                            password
+                            viewModel.email.value,
+                            viewModel.password.value
                         )
                     ) {
                         navController.navigate("start_screen")
