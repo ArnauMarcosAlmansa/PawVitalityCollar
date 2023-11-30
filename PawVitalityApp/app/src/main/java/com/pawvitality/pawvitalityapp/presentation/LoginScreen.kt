@@ -25,6 +25,7 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.text.input.PasswordVisualTransformation
 import androidx.compose.ui.unit.dp
+import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.ViewModel
@@ -32,23 +33,28 @@ import androidx.lifecycle.viewModelScope
 import com.google.firebase.auth.FirebaseAuth
 import com.google.firebase.auth.ktx.auth
 import com.google.firebase.ktx.Firebase
+import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.launch
+import javax.inject.Inject
 
 
-class LoginScreenState(val navController: NavController): ViewModel() {
+@HiltViewModel
+class LoginScreenState @Inject constructor(): ViewModel() {
     var auth = Firebase.auth;
+    var errorMessage: String? = null
 
-    fun login(email: String, password: String) {
+    fun login(email: String, password: String, goToStart : () -> Unit) {
         viewModelScope.launch {
             try {
                 auth.signInWithEmailAndPassword(email, password)
                     .addOnCompleteListener { task ->
                         if (task.isSuccessful) {
                             Log.d("LOGIN", "login ok")
-                            navController.navigate("start_screen")
+                            goToStart()
                         } else {
                             Log.d("LOGIN", "login fail")
+                            errorMessage = "Invalid email or password"
                         }
                     }
             } catch (ex: Exception) {
@@ -59,11 +65,7 @@ class LoginScreenState(val navController: NavController): ViewModel() {
 }
 
 @Composable
-fun LoginScreen(navController: NavController, authController: AuthController) {
-    val state by remember {
-        mutableStateOf(LoginScreenState(navController))
-    }
-
+fun LoginScreen(navController: NavController, authController: AuthController, state: LoginScreenState = hiltViewModel()) {
     var email by remember { mutableStateOf("") }
     var password by remember { mutableStateOf("") }
 
@@ -85,13 +87,18 @@ fun LoginScreen(navController: NavController, authController: AuthController) {
                 },
                 visualTransformation = PasswordVisualTransformation()
             )
+            state.errorMessage?.let {
+                Text(text = it)
+            }
             Button(
                 modifier = Modifier.width(300.dp),
                 onClick = {
                     state.login(
                         email,
                         password
-                    )
+                    ) {
+                        navController.navigate("start_screen")
+                    }
                 }
             ) {
                 Text(text = "Login", fontSize = 20.sp)
