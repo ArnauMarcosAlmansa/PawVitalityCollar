@@ -34,8 +34,30 @@ class LoginViewModel @Inject constructor(): ViewModel() {
                     }
             } catch (ex: Exception) {
                 Log.d("LOGIN", "login exception")
+                errorMessage.value = "Unexpected error"
             }
         }
     }
+
+    fun signup(email: String, password: String, goToStart : () -> Unit) {
+        viewModelScope.launch {
+            try {
+                auth.createUserWithEmailAndPassword(email, password)
+                    .addOnCompleteListener { task ->
+                        if (task.isSuccessful) {
+                            Log.d("SIGNUP", "signup ok")
+                            goToStart()
+                        } else {
+                            Log.d("SIGNUP", "signup fail")
+                            errorMessage.value = "Invalid email or password"
+                        }
+                    }
+            } catch (ex: Exception) {
+                Log.d("SIGNUP", "signup exception")
+                errorMessage.value = "Unexpected error"
+            }
+        }
+    }
+
 
 }

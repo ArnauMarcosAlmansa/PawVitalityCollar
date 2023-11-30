@@ -51,12 +51,13 @@ fun SignupScreen(
             Button(
                 modifier = Modifier.width(300.dp),
                 onClick = {
-                    if (authController.authenticate(
+                    viewModel.signup(
                             viewModel.email.value,
                             viewModel.password.value
-                        )
                     ) {
                         navController.navigate("start_screen")
+                        LoginScreenState.email = viewModel.email.value
+                        LoginScreenState.password = viewModel.password.value
                     }
                 }
             ) {
