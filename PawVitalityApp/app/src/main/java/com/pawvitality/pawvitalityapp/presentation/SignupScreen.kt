@@ -60,7 +60,7 @@ fun SignupScreen(
                     }
                 }
             ) {
-                Text(text = "Login", fontSize = 20.sp)
+                Text(text = "Sign up", fontSize = 20.sp)
             }
             Text(text = "Already have an account?")
             Button(onClick = { navController.navigate("login_screen") }) {

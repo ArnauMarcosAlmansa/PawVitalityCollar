@@ -21,6 +21,7 @@ import androidx.navigation.NavController
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.setValue
+import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.text.input.PasswordVisualTransformation
 import androidx.compose.ui.unit.dp
 import androidx.hilt.navigation.compose.hiltViewModel
@@ -55,13 +56,15 @@ fun LoginScreen(
                 },
                 visualTransformation = PasswordVisualTransformation()
             )
+            viewModel.errorMessage.value?.let {
+                Text(text = it, color = Color.Red)
+            }
             Button(
                 modifier = Modifier.width(300.dp),
                 onClick = {
-                    if (authController.authenticate(
-                            viewModel.email.value,
-                            viewModel.password.value
-                        )
+                    viewModel.login(
+                        viewModel.email.value,
+                        viewModel.password.value
                     ) {
                         navController.navigate("start_screen")
                         LoginScreenState.email = viewModel.email.value
@@ -69,7 +72,7 @@ fun LoginScreen(
                     }
                 }
             ) {
-                Text(text = "Sign up", fontSize = 20.sp)
+                Text(text = "Login", fontSize = 20.sp)
             }
             Text(text = "Don't have an account?")
             Button(onClick = { navController.navigate("signup_screen") }) {
