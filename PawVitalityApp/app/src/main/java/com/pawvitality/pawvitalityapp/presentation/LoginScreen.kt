@@ -38,6 +38,10 @@ fun LoginScreen(
     navController: NavController, authController: AuthController,
     viewModel: LoginViewModel = hiltViewModel()
 ) {
+    if (viewModel.auth.currentUser != null) {
+        navController.navigate("start_screen")
+    }
+
     Box(
         modifier = Modifier.fillMaxSize(),
         contentAlignment = Alignment.Center
