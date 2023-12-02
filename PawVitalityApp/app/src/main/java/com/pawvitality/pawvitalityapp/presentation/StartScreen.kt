@@ -5,9 +5,16 @@ import android.util.Log
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Box
+import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
+import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.height
+import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.shape.CircleShape
+import androidx.compose.foundation.shape.RoundedCornerShape
+import androidx.compose.material.Divider
 import androidx.compose.material.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
@@ -17,6 +24,7 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import androidx.compose.ui.zIndex
 import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.navigation.NavController
 import com.google.firebase.database.ktx.database
@@ -30,14 +38,94 @@ import java.util.Locale
 fun StartScreen(
     navController: NavController
 ) {
-
     Box(
-        modifier = Modifier.fillMaxSize(),
+        modifier = Modifier
+            .fillMaxSize()
+            .background(color = Color(0xFF121212)),
+        contentAlignment = Alignment.Center
+    ){
+        Column(
+            modifier = Modifier
+                .fillMaxWidth()
+                .padding(16.dp)
+        ) {
+            // Heart Rate Box
+            Box(
+                modifier = Modifier
+                    .background(color = Color.DarkGray, shape = RoundedCornerShape(16.dp))
+                    .padding(16.dp)
+                    .fillMaxWidth()
+            ) {
+                Text(
+                    text = "Heart Rate",
+                    fontWeight = FontWeight.Bold,
+                    color = Color.White
+                )
+                Column (
+                    modifier = Modifier
+                        .padding(20.dp)
+                ){
+                    Text(
+                        text = "Resting: ", // Calcular la mitjana quan dels HR quan moving=False
+                        color = Color.White
+                    )
+                    Text(
+                        text = "Current: ",
+                        color = Color.White
+                    )
+                    Text(
+                        text = "High: ", // Pillar el max HR
+                        color = Color.White
+                    )
+                }
+            }
+
+            // Spacer to create some space between the two boxes
+            Spacer(modifier = Modifier.height(16.dp))
+
+            // Temperature Box
+            Box(
+                modifier = Modifier
+                    .background(color = Color.DarkGray, shape = RoundedCornerShape(16.dp))
+                    .padding(16.dp)
+                    .fillMaxWidth()
+            ) {
+                Text(
+                    text = "Temperature",
+                    fontWeight = FontWeight.Bold,
+                    color = Color.White
+                )
+                Column (
+                    modifier = Modifier
+                        .padding(20.dp)
+                ){
+                    Text(
+                        text = "Resting: ",
+                        color = Color.White
+                    )
+                    Text(
+                        text = "Current: ",
+                        color = Color.White
+                    )
+                    Text(
+                        text = "High: ",
+                        color = Color.White
+                    )
+                }
+            }
+        }
+    }
+    // Header
+    Box(
+        modifier = Modifier
+            .fillMaxWidth()
+            .background(Color.Black),
         contentAlignment = Alignment.Center
     ){
         Box(
             modifier = Modifier
-                .size(150.dp)
+                .padding(top = 10.dp)
+                .size(75.dp)
                 .clip(CircleShape)
                 .background(Color.Blue, CircleShape)
                 .clickable {
@@ -53,11 +141,19 @@ fun StartScreen(
         ){
             Text(
                 text = "Start",
-                fontSize = 35.sp,
+                fontSize = 15.sp,
                 fontWeight = FontWeight.Bold,
                 color = Color.White
             )
         }
+        Divider(
+            color = Color.Blue,
+            thickness = 2.dp,
+            modifier = Modifier
+                .fillMaxWidth()
+                .padding(bottom = 0.dp)
+                .align(Alignment.BottomEnd)
+        )
     }
 }
 
