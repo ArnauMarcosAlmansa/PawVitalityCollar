@@ -26,78 +26,54 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.text.input.PasswordVisualTransformation
 import androidx.compose.ui.unit.dp
 import androidx.hilt.navigation.compose.hiltViewModel
-import androidx.lifecycle.LiveData
-import androidx.lifecycle.MutableLiveData
-import androidx.lifecycle.ViewModel
-import androidx.lifecycle.viewModelScope
-import com.google.firebase.auth.FirebaseAuth
-import com.google.firebase.auth.ktx.auth
-import com.google.firebase.ktx.Firebase
-import dagger.hilt.android.lifecycle.HiltViewModel
-import kotlinx.coroutines.flow.MutableStateFlow
-import kotlinx.coroutines.launch
-import javax.inject.Inject
+import com.google.android.play.integrity.internal.l
 
 
-@HiltViewModel
-class LoginScreenState @Inject constructor(): ViewModel() {
-    var auth = Firebase.auth;
-    var errorMessage: String? = null
-
-    fun login(email: String, password: String, goToStart : () -> Unit) {
-        viewModelScope.launch {
-            try {
-                auth.signInWithEmailAndPassword(email, password)
-                    .addOnCompleteListener { task ->
-                        if (task.isSuccessful) {
-                            Log.d("LOGIN", "login ok")
-                            goToStart()
-                        } else {
-                            Log.d("LOGIN", "login fail")
-                            errorMessage = "Invalid email or password"
-                        }
-                    }
-            } catch (ex: Exception) {
-                Log.d("LOGIN", "login exception")
-            }
-        }
-    }
+object LoginScreenState {
+    var email: String = "";
+    var password: String = "";
 }
 
 @Composable
-fun LoginScreen(navController: NavController, authController: AuthController, state: LoginScreenState = hiltViewModel()) {
-    var email by remember { mutableStateOf("") }
-    var password by remember { mutableStateOf("") }
+fun LoginScreen(
+    navController: NavController, authController: AuthController,
+    viewModel: LoginViewModel = hiltViewModel()
+) {
+    if (viewModel.auth.currentUser != null) {
+        navController.navigate("start_screen")
+    }
 
     Box(
         modifier = Modifier.fillMaxSize(),
         contentAlignment = Alignment.Center
     ) {
         Column {
-            OutlinedTextField(value = email,
-                onValueChange = { email = it; Log.d("EMAIL INPUT", it) },
+            OutlinedTextField(value = viewModel.email.value,
+                onValueChange = { viewModel.email.value = it; Log.d("EMAIL INPUT", it) },
                 label = {
                     Text(text = "Email")
                 })
             OutlinedTextField(
-                value = password,
-                onValueChange = { password = it },
+                value = viewModel.password.value,
+                onValueChange = { viewModel.password.value = it },
                 label = {
                     Text(text = "Password")
                 },
                 visualTransformation = PasswordVisualTransformation()
             )
-            state.errorMessage?.let {
-                Text(text = it)
+            viewModel.errorMessage.value?.let {
+                Text(text = it, color = Color.Red)
             }
             Button(
                 modifier = Modifier.width(300.dp),
                 onClick = {
-                    state.login(
-                        email,
-                        password
+                    viewModel.login(
+                        viewModel.email.value,
+                        viewModel.password.value
                     ) {
                         navController.navigate("start_screen")
+                        LoginScreenState.email = viewModel.email.value
+                        LoginScreenState.password = viewModel.password.value
                     }
                 }
             ) {

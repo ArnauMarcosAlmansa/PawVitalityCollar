@@ -19,61 +19,28 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.sp
 import androidx.navigation.NavController
 
-import androidx.compose.runtime.remember
-import androidx.compose.runtime.mutableStateOf
-import androidx.compose.runtime.setValue
 import androidx.compose.ui.text.input.PasswordVisualTransformation
 import androidx.compose.ui.unit.dp
-import androidx.lifecycle.ViewModel
-import androidx.lifecycle.viewModelScope
-import com.google.firebase.auth.ktx.auth
-import com.google.firebase.ktx.Firebase
-import kotlinx.coroutines.launch
-
-
-class SignupViewModel(val navController: NavController): ViewModel() {
-    var auth = Firebase.auth;
-
-    fun signup(email: String, password: String) {
-        viewModelScope.launch {
-            try {
-                auth.createUserWithEmailAndPassword(email, password)
-                    .addOnCompleteListener { task ->
-                        if (task.isSuccessful) {
-                            Log.d("SIGNUP", "signup ok")
-                            navController.navigate("start_screen")
-                        } else {
-                            Log.d("SIGNUP", "signup fail ${task.exception?.message}")
-                        }
-                    }
-            } catch (ex: Exception) {
-                Log.d("SIGNUP", "signup exception $ex")
-            }
-        }
-    }
-}
+import androidx.hilt.navigation.compose.hiltViewModel
 
 @Composable
-fun SignupScreen(navController: NavController, authController: AuthController) {
-
-    val state by remember { mutableStateOf(SignupViewModel(navController)) }
-
-    var email by remember { mutableStateOf("") }
-    var password by remember { mutableStateOf("") }
-
+fun SignupScreen(
+    navController: NavController, authController: AuthController,
+    viewModel: LoginViewModel = hiltViewModel()
+) {
     Box(
         modifier = Modifier.fillMaxSize(),
         contentAlignment = Alignment.Center
     ) {
         Column {
-            OutlinedTextField(value = email,
-                onValueChange = { email = it; Log.d("EMAIL INPUT", it) },
+            OutlinedTextField(value = viewModel.email.value,
+                onValueChange = { viewModel.email.value = it; Log.d("EMAIL INPUT", it) },
                 label = {
                     Text(text = "Email")
                 })
             OutlinedTextField(
-                value = password,
-                onValueChange = { password = it },
+                value = viewModel.password.value,
+                onValueChange = { viewModel.password.value = it },
                 label = {
                     Text(text = "Password")
                 },
@@ -82,10 +49,14 @@ fun SignupScreen(navController: NavController, authController: AuthController) {
             Button(
                 modifier = Modifier.width(300.dp),
                 onClick = {
-                    state.signup(
-                            email,
-                            password
-                        )
+                    viewModel.signup(
+                            viewModel.email.value,
+                            viewModel.password.value
+                    ) {
+                        navController.navigate("start_screen")
+                        LoginScreenState.email = viewModel.email.value
+                        LoginScreenState.password = viewModel.password.value
+                    }
                 }
             ) {
                 Text(text = "Sign up", fontSize = 20.sp)

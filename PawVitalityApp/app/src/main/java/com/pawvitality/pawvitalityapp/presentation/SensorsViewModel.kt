@@ -6,6 +6,7 @@ import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.setValue
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
+import com.google.firebase.database.FirebaseDatabase
 import com.pawvitality.pawvitalityapp.data.ConnectionState
 import com.pawvitality.pawvitalityapp.data.SensorsReceiveManager
 import com.pawvitality.pawvitalityapp.util.Resource
@@ -13,6 +14,9 @@ import com.google.firebase.database.ktx.database
 import com.google.firebase.ktx.Firebase
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.launch
+import java.text.SimpleDateFormat
+import java.util.Date
+import java.util.Locale
 import javax.inject.Inject
 
 @HiltViewModel
@@ -43,9 +47,6 @@ class SensorsViewModel @Inject constructor(
 
 
     var connectionState by mutableStateOf<ConnectionState>(ConnectionState.Uninitialized)
-    // Write a message to the database
-    val database = Firebase.database("https://pawvitality-default-rtdb.europe-west1.firebasedatabase.app")
-    val myRef = database.getReference("temperature")
 
     private fun subscribeToChanges(){
         viewModelScope.launch {
@@ -61,7 +62,8 @@ class SensorsViewModel @Inject constructor(
 
                         Log.d("APP SUCCESS", "${temperature}")
 
-                        myRef.setValue(temperature)
+                        //sendDataToFirebase(temperature)
+                        sendDataToFirebase(temperature, heartRate, breathRate, moving, barking)
                     }
                     is Resource.Loading -> {
                         initializingMessage = result.message
@@ -78,6 +80,24 @@ class SensorsViewModel @Inject constructor(
                 }
             }
         }
+    }
+
+    private fun sendDataToFirebase(temperature: Float, heartRate: Int, breathRate: Int
+                                   , moving: Boolean, barking: Boolean)
+    {
+        val database = Firebase.database("https://pawvitality-default-rtdb.europe-west1.firebasedatabase.app")
+        val dateFormat = SimpleDateFormat("yyyy-MM-dd HH:mm:ss", Locale.getDefault())
+        val timestamp = dateFormat.format(Date())
+
+        val dbRef = database.reference.child("sensorData").child(timestamp)
+        val data = mapOf(
+            "temperature" to temperature,
+            "heartRate" to heartRate,
+            "breathRate" to breathRate,
+            "moving" to moving,
+            "barking" to barking
+        )
+        dbRef.setValue(data)
     }
 
     fun disconnect() {

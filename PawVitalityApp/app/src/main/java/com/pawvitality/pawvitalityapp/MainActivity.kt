@@ -2,6 +2,7 @@ package com.pawvitality.pawvitalityapp
 
 import android.app.Activity
 import android.bluetooth.BluetoothAdapter
+import android.content.BroadcastReceiver
 import android.content.Intent
 import android.os.Bundle
 import androidx.activity.ComponentActivity
