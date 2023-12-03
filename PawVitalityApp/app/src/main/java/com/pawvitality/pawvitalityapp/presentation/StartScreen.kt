@@ -1,6 +1,8 @@
 package com.pawvitality.pawvitalityapp.presentation
 
 import android.content.ContentValues.TAG
+import android.os.Handler
+import android.os.Looper
 import android.util.Log
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
@@ -17,6 +19,7 @@ import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.Divider
 import androidx.compose.material.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
@@ -25,19 +28,39 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.compose.ui.zIndex
+import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.navigation.NavController
 import com.google.firebase.database.ktx.database
 import com.google.firebase.firestore.ktx.firestore
 import com.google.firebase.ktx.Firebase
+import com.google.firebase.functions.ktx.functions
+import com.pawvitality.pawvitalityapp.data.ConnectionState
 import java.text.SimpleDateFormat
 import java.util.Date
 import java.util.Locale
 
 @Composable
 fun StartScreen(
-    navController: NavController
+    navController: NavController,
+    feedbackViewModel: FeedbackViewModel = hiltViewModel()
 ) {
+    val functions = Firebase.functions
+
+    LaunchedEffect(key1 = true) {
+        val mainHandler = Handler(Looper.getMainLooper())
+
+        mainHandler.post(object : Runnable {
+            override fun run() {
+                val func = functions.getHttpsCallable("getFeedback")
+                func.call() // TODO: recuperar los datos
+                mainHandler.postDelayed(this, 10000)
+            }
+        })
+
+    }
+
+
     Box(
         modifier = Modifier
             .fillMaxSize()
@@ -66,15 +89,15 @@ fun StartScreen(
                         .padding(20.dp)
                 ){
                     Text(
-                        text = "Resting: ", // Calcular la mitjana quan dels HR quan moving=False
+                        text = "Resting: ${feedbackViewModel.heartRate.resting}", // Calcular la mitjana quan dels HR quan moving=False
                         color = Color.White
                     )
                     Text(
-                        text = "Current: ",
+                        text = "Current: ${feedbackViewModel.heartRate.current}",
                         color = Color.White
                     )
                     Text(
-                        text = "High: ", // Pillar el max HR
+                        text = "High: ${feedbackViewModel.heartRate.high}", // Pillar el max HR
                         color = Color.White
                     )
                 }
@@ -100,15 +123,15 @@ fun StartScreen(
                         .padding(20.dp)
                 ){
                     Text(
-                        text = "Resting: ",
+                        text = "Resting: ${feedbackViewModel.temperature.resting} ºC",
                         color = Color.White
                     )
                     Text(
-                        text = "Current: ",
+                        text = "Current: ${feedbackViewModel.temperature.current} ºC",
                         color = Color.White
                     )
                     Text(
-                        text = "High: ",
+                        text = "High: ${feedbackViewModel.temperature.high} ºC",
                         color = Color.White
                     )
                 }
