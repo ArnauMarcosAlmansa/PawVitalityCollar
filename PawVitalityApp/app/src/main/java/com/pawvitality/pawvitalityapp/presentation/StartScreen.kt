@@ -20,6 +20,8 @@ import androidx.compose.material.Divider
 import androidx.compose.material.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
@@ -39,6 +41,8 @@ import com.pawvitality.pawvitalityapp.data.ConnectionState
 import java.text.SimpleDateFormat
 import java.util.Date
 import java.util.Locale
+import androidx.compose.runtime.remember
+
 
 @Composable
 fun StartScreen(
@@ -46,18 +50,33 @@ fun StartScreen(
     feedbackViewModel: FeedbackViewModel = hiltViewModel()
 ) {
     val functions = Firebase.functions
+    val mainHandler by remember { mutableStateOf(Handler(Looper.getMainLooper())) }
+    LaunchedEffect(key1 = LoginScreenState.email) {
+        Log.d("FEEDBACK", "launching")
 
-    LaunchedEffect(key1 = true) {
-        val mainHandler = Handler(Looper.getMainLooper())
+//        val func = functions.getHttpsCallable("getFeedback")
+        val func = functions.getHttpsCallable("helloWorld")
 
         mainHandler.post(object : Runnable {
             override fun run() {
-                val func = functions.getHttpsCallable("getFeedback")
-                func.call() // TODO: recuperar los datos
+                val data = hashMapOf(
+                    "username" to LoginScreenState.email,
+                )
+
+                func
+                    .call(data)
+                    .continueWith { task ->
+                    val result = task.result?.data as Map<*, *>
+                        val tmp = TemperatureData()
+                        tmp.current = (result["message"] as String).length.toFloat()
+                        feedbackViewModel.temperature = tmp
+                        Log.d("FEEDBACK", "success")
+                }.addOnFailureListener {
+                    Log.e("FEEDBACK", "exception", it)
+                }
                 mainHandler.postDelayed(this, 10000)
             }
         })
-
     }
 
 

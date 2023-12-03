@@ -40,6 +40,7 @@ fun LoginScreen(
     viewModel: LoginViewModel = hiltViewModel()
 ) {
     if (viewModel.auth.currentUser != null) {
+        LoginScreenState.email = viewModel.auth.currentUser!!.email.toString()
         navController.navigate("start_screen")
     }
 
