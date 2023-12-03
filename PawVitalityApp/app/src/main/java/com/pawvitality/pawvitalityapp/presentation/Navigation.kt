@@ -7,6 +7,7 @@ import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import androidx.navigation.compose.rememberNavController
 import androidx.compose.runtime.remember
+import com.pawvitality.pawvitalityapp.data.CloudFunctionsService
 
 
 @Composable
@@ -19,7 +20,7 @@ fun Navigation(
     
     NavHost(navController = navController, startDestination = Screen.LoginScreen.route){
         composable(Screen.StartScreen.route){
-            StartScreen(navController = navController)
+            StartScreen(navController = navController, cloudFunctions = CloudFunctionsService())
         }
 
         composable(Screen.SensorsScreen.route){
@@ -38,7 +39,8 @@ fun Navigation(
         composable(Screen.SignupScreen.route){
             SignupScreen(
                 navController = navController,
-                authController = authController
+                authController = authController,
+                cloudFunctions = CloudFunctionsService()
             )
         }
     }

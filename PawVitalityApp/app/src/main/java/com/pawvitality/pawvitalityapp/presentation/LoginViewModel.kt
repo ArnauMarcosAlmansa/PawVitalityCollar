@@ -49,7 +49,7 @@ class LoginViewModel @Inject constructor(): ViewModel() {
                             goToStart()
                         } else {
                             Log.d("SIGNUP", "signup fail")
-                            errorMessage.value = "Invalid email or password"
+                            errorMessage.value = task.exception?.message
                         }
                     }
             } catch (ex: Exception) {

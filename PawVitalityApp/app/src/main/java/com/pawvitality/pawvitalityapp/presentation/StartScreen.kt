@@ -42,50 +42,28 @@ import java.text.SimpleDateFormat
 import java.util.Date
 import java.util.Locale
 import androidx.compose.runtime.remember
+import com.pawvitality.pawvitalityapp.data.CloudFunctionsService
 
 
 @Composable
 fun StartScreen(
     navController: NavController,
-    feedbackViewModel: FeedbackViewModel = hiltViewModel()
+    cloudFunctions: CloudFunctionsService,
+    feedbackViewModel: FeedbackViewModel = hiltViewModel(),
 ) {
-    val functions = Firebase.functions
     val mainHandler by remember { mutableStateOf(Handler(Looper.getMainLooper())) }
     LaunchedEffect(key1 = LoginScreenState.email) {
         Log.d("FEEDBACK", "launching")
 
-//        val func = functions.getHttpsCallable("getFeedback")
-        val func = functions.getHttpsCallable("helloWorld")
-
         mainHandler.post(object : Runnable {
             override fun run() {
-                val data = hashMapOf(
-                    "username" to LoginScreenState.email,
-                )
-
-                func
-                    .call(data)
-                    .continueWith { task ->
-                        val result = task.result?.data as Map<*, *>
-
-                        val resultTemperature = result["temperature"] as Map<String, Float>
-                        val tmp = TemperatureData()
-                        tmp.current = (resultTemperature["current"] as Float)
-                        tmp.resting = (resultTemperature["resting"] as Float)
-                        tmp.high = (resultTemperature["high"] as Float)
+                cloudFunctions.getDataFeedback(LoginScreenState.email)
+                    .continueWith {
+                        val (tmp, hrt) = it.result
                         feedbackViewModel.temperature = tmp
-
-                        val resultHeartRate = result["heartRate"] as Map<String, Float>
-                        val hrt = HeartRateData()
-                        hrt.current = (resultHeartRate["current"] as Float)
-                        hrt.resting = (resultHeartRate["resting"] as Float)
-                        hrt.high = (resultHeartRate["high"] as Float)
                         feedbackViewModel.heartRate = hrt
+                    }
 
-                        Log.d("FEEDBACK", "success")
-                }.addOnFailureListener {
-                    Log.e("FEEDBACK", "exception", it)
-                }
                 mainHandler.postDelayed(this, 10000)
             }
         })

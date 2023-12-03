@@ -22,10 +22,12 @@ import androidx.navigation.NavController
 import androidx.compose.ui.text.input.PasswordVisualTransformation
 import androidx.compose.ui.unit.dp
 import androidx.hilt.navigation.compose.hiltViewModel
+import com.pawvitality.pawvitalityapp.data.CloudFunctionsService
 
 @Composable
 fun SignupScreen(
     navController: NavController, authController: AuthController,
+    cloudFunctions: CloudFunctionsService,
     viewModel: LoginViewModel = hiltViewModel()
 ) {
     Box(
@@ -53,9 +55,12 @@ fun SignupScreen(
                             viewModel.email.value,
                             viewModel.password.value
                     ) {
-                        navController.navigate("start_screen")
-                        LoginScreenState.email = viewModel.email.value
-                        LoginScreenState.password = viewModel.password.value
+                        cloudFunctions.setupDatabase(viewModel.email.value)
+                            .continueWith {
+                                navController.navigate("start_screen")
+                                LoginScreenState.email = viewModel.email.value
+                                LoginScreenState.password = viewModel.password.value
+                            }
                     }
                 }
             ) {
