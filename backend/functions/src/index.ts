@@ -64,17 +64,17 @@ export const getDataFeedback = onRequest(async (request, response) => {
       return;
     }
 
-    const documents = dateSnapshot.docs.map((doc) => doc.data());
+    // const documents = dateSnapshot.docs.map((doc) => doc.data());
 
     logger.info("documents", JSON.stringify(documents));
-    /*
+    
     const userData = {};
     dateSnapshot.forEach(async (dateDoc) => {
       const entryId = dateDoc.id;
       const entryData = dateDoc.data();
 
       const userHourRef = userDateRef.doc(entryId);
-      const hourSnapshot = await getDocs(userHourRef);
+      const hourSnapshot = await userHourRef.collection(entryId).get();
 
       const hourData = {};
       hourSnapshot.forEach((hourDoc) => {
@@ -85,12 +85,13 @@ export const getDataFeedback = onRequest(async (request, response) => {
       userData[entryId] = { ...entryData, hour: hourData };
 
     });
-    */
+
+    response.send({ data: { userData } });
+    
   } catch (e) {
     logger.error(e);
+    response.status(500).send("Internal Server Error");
   }
-
-  // logger.info('Data', {structuredData: true, userData});
-  // response.send({ data: { userData } });
+  logger.info('Data', {structuredData: true, userData});
 });
 
