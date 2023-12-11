@@ -36,3 +36,61 @@ export const setupDatabase = onRequest(async (request, response) => {
       [username]: username,
     });
 });
+
+export const getDataFeedback = onRequest(async (request, response) => {
+  try {
+    const email = request.body.data.username;
+    const userDocRef = db.collection("SensorsData").doc(email);
+
+    const userDateRef = userDocRef.collection(email);
+
+    const dateSnapshot = await userDateRef.get();
+
+    if (dateSnapshot.empty) {
+      response.send({
+        data: {
+          heartRate: {
+            current: 0.0,
+            resting: 0.0,
+            high: 0.0,
+          },
+          temperature: {
+            current: 0.0,
+            resting: 0.0,
+            high: 0.0,
+          },
+        },
+      });
+      return;
+    }
+
+    const documents = dateSnapshot.docs.map((doc) => doc.data());
+
+    logger.info("documents", JSON.stringify(documents));
+    /*
+    const userData = {};
+    dateSnapshot.forEach(async (dateDoc) => {
+      const entryId = dateDoc.id;
+      const entryData = dateDoc.data();
+
+      const userHourRef = userDateRef.doc(entryId);
+      const hourSnapshot = await getDocs(userHourRef);
+
+      const hourData = {};
+      hourSnapshot.forEach((hourDoc) => {
+        const hourId = hourDoc.id;
+        const hourData = hourDoc.data();
+        hourData[hourId] = hourData;
+      });
+      userData[entryId] = { ...entryData, hour: hourData };
+
+    });
+    */
+  } catch (e) {
+    logger.error(e);
+  }
+
+  // logger.info('Data', {structuredData: true, userData});
+  // response.send({ data: { userData } });
+});
+
