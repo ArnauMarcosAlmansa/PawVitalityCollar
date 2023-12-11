@@ -39,11 +39,10 @@ fun LoginScreen(
     navController: NavController, authController: AuthController,
     viewModel: LoginViewModel = hiltViewModel()
 ) {
-    // TODO: e
-//    if (viewModel.auth.currentUser != null) {
-//        LoginScreenState.email = viewModel.auth.currentUser!!.email.toString()
-//        navController.navigate("start_screen")
-//    }
+    if (viewModel.auth.currentUser != null) {
+        LoginScreenState.email = viewModel.auth.currentUser!!.email.toString()
+        navController.navigate("start_screen")
+    }
 
     Box(
         modifier = Modifier.fillMaxSize(),

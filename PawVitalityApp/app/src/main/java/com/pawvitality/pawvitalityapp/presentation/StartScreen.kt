@@ -212,8 +212,3 @@ private fun sendDataToFirebase(
         .addOnSuccessListener { Log.d(TAG, "Document successfully written!") }
         .addOnFailureListener { e -> Log.w(TAG, "Error writing document", e) }
 }
-
-
-
-
-
