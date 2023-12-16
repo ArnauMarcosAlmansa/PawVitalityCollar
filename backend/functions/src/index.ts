@@ -164,3 +164,36 @@ export const getDataFeedback = onRequest(async (request, response) => {
   }
 });
 
+export const getLastHourData = onRequest(async (request, response) => {
+  logger.info("ENTER");
+  try {
+    const email = request.body.data.username;
+    const id = todaysDocumentId();
+    const doc = (await db.collection(email)
+      .doc(id)
+      .get()).data();
+
+    if (doc === undefined) {
+      response.send({
+        data: []
+      });
+      return;
+    }
+
+    const registers = doc.data || [];
+    const oneHour = 60 * 60 * 1000;
+    const lastHourRegisters = registers
+      .map((reg: any) => ({ ...reg, timestamp: new Date(Date.parse(reg.timestamp)) }))
+      .filter((reg: any) => ((new Date()).getTime() - reg.timestamp.getTime()) < oneHour)
+
+    response.send({
+      data: lastHourRegisters,
+    })
+
+    logger.info("DOCUMENTS", doc);
+  } catch (e) {
+    logger.error(e);
+    response.status(500).send("Internal Server Error");
+  }
+});
+
