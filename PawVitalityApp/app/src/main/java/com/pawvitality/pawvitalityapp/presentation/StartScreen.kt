@@ -21,6 +21,7 @@ import androidx.compose.material.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.key
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
@@ -42,7 +43,12 @@ import java.text.SimpleDateFormat
 import java.util.Date
 import java.util.Locale
 import androidx.compose.runtime.remember
+import androidx.compose.ui.viewinterop.AndroidView
 import com.pawvitality.pawvitalityapp.data.CloudFunctionsService
+import com.github.mikephil.charting.charts.LineChart;
+import com.github.mikephil.charting.data.Entry
+import com.github.mikephil.charting.data.LineData
+import com.github.mikephil.charting.data.LineDataSet
 
 
 @Composable
@@ -53,8 +59,6 @@ fun StartScreen(
 ) {
     val mainHandler by remember { mutableStateOf(Handler(Looper.getMainLooper())) }
     LaunchedEffect(key1 = LoginScreenState.email) {
-        Log.d("FEEDBACK", "launching")
-
         mainHandler.post(object : Runnable {
             override fun run() {
                 cloudFunctions.getDataFeedback(LoginScreenState.email)
@@ -62,6 +66,12 @@ fun StartScreen(
                         val (tmp, hrt) = it.result
                         feedbackViewModel.temperature = tmp
                         feedbackViewModel.heartRate = hrt
+                    }
+
+                cloudFunctions.getLastHourDataData(LoginScreenState.email)
+                    .continueWith {
+                        feedbackViewModel.lastHourEntries = it.result
+                        Log.d("LASTHOUR", it.result.toString())
                     }
 
                 mainHandler.postDelayed(this, 10000)
@@ -73,7 +83,7 @@ fun StartScreen(
     Box(
         modifier = Modifier
             .fillMaxSize()
-            .background(color = Color(0xFF121212)),
+            .background(color = Color.White),
         contentAlignment = Alignment.Center
     ){
         Column(
@@ -145,13 +155,26 @@ fun StartScreen(
                     )
                 }
             }
+
+            key(feedbackViewModel.lastHourEntries) {
+                AndroidView(factory = {
+                    val chart = LineChart(it)
+                    val values = LineDataSet(feedbackViewModel.lastHourEntries.mapIndexed { index, dataEntry ->  Entry(index.toFloat(), dataEntry.temp)}, "Temperature")
+                    val series = listOf(values)
+                    val data = LineData(series)
+                    chart.data = data
+                    chart
+                }, modifier = Modifier
+                    .fillMaxWidth()
+                    .height(300.dp))
+            }
         }
     }
     // Header
     Box(
         modifier = Modifier
             .fillMaxWidth()
-            .background(Color.Black),
+            .background(Color.White),
         contentAlignment = Alignment.Center
     ){
         Box(
@@ -162,12 +185,12 @@ fun StartScreen(
                 .background(Color.Blue, CircleShape)
                 .clickable {
                     // TODO: Uncomment
-                    //navController.navigate(Screen.SensorsScreen.route){
-                    //   popUpTo(Screen.StartScreen.route){
-                    //      inclusive = true
-                    //}
-                    //}
-                    sendDataToFirebase(cloudFunctions, 7.2f, 2, 5, true, true)
+                    navController.navigate(Screen.SensorsScreen.route) {
+                        popUpTo(Screen.StartScreen.route) {
+                            inclusive = true
+                        }
+                    }
+//                    sendDataToFirebase(cloudFunctions, 7.2f, 2, 5, true, true)
                 },
             contentAlignment = Alignment.Center
         ){

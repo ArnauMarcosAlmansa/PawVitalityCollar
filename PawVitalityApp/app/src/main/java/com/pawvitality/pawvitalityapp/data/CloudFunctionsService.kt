@@ -2,7 +2,6 @@ package com.pawvitality.pawvitalityapp.data
 
 import android.util.Log
 import com.google.android.gms.tasks.Task
-import com.google.firebase.database.ktx.database
 import com.google.firebase.functions.HttpsCallableResult
 import com.google.firebase.functions.ktx.functions
 import com.google.firebase.ktx.Firebase
@@ -14,11 +13,16 @@ import java.util.Date
 import java.util.Locale
 import javax.inject.Inject
 
+class DataEntry constructor(val temp: Float, val heartRate: Float) {
+
+}
+
 class CloudFunctionsService @Inject constructor() {
     val functions = Firebase.functions
     val callSetupDatabase = functions.getHttpsCallable("setupDatabase")
     val callGetDataFeedback = functions.getHttpsCallable("getDataFeedback")
     val callSendData = functions.getHttpsCallable("sendData")
+    val callGetLastHourData = functions.getHttpsCallable("getLastHourData")
 
     fun setupDatabase(username: String): Task<HttpsCallableResult> {
         val data = hashMapOf(
@@ -41,8 +45,6 @@ class CloudFunctionsService @Inject constructor() {
 
                 val resultTemperature = result["temperature"] as Map<String, *>
                 val tmp = parseTemperature(resultTemperature)
-//                tmp.resting = (resultTemperature["resting"]?.toFloat() ?: 0.0f)
-//                tmp.high = (resultTemperature["high"]?.toFloat() ?: 0.0f)
 
                 val resultHeartRate = result["heartRate"] as Map<String, Float>
                 val hrt = parseHeartRate(resultHeartRate)
@@ -132,5 +134,31 @@ class CloudFunctionsService @Inject constructor() {
         )
 
         callSendData.call(data)
+    }
+
+    fun getLastHourDataData(username: String): Task<ArrayList<DataEntry>> {
+        val data = hashMapOf(
+            "username" to username,
+        )
+
+        return callGetLastHourData
+            .call(data)
+            .continueWith { task ->
+                val result = task.result?.data as List<Map<String, Float>>
+                val entries = ArrayList<DataEntry>()
+                for (entry in result) {
+                    entries.add(
+                        DataEntry(
+                            entry["temperature"]!!,
+                            entry["heartRate"]!!,
+                        )
+                    )
+                }
+
+                Log.d("LASTHOUR", result.toString())
+                entries
+            }.addOnFailureListener {
+                Log.e("LASTHOUR", "exception", it)
+            }
     }
 }

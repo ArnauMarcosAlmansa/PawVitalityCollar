@@ -87,24 +87,6 @@ class SensorsViewModel @Inject constructor(
     private fun sendDataToFirebase(temperature: Float, heartRate: Int, breathRate: Int, moving: Boolean, barking: Boolean)
     {
         cloudFunctions.sendData(temperature, heartRate, breathRate, moving, barking)
-
-        return
-
-        val database = Firebase.database("https://pawvitality-default-rtdb.europe-west1.firebasedatabase.app")
-        val dateTimeFormat = SimpleDateFormat("yyyy-MM-dd HH:mm:ss", Locale.getDefault())
-        val dateFormat = SimpleDateFormat("yyyy-MM-dd", Locale.getDefault())
-        val timestamp = dateTimeFormat.format(Date())
-
-        val dbRef = database.reference.child(LoginScreenState.email)
-        val data = mapOf(
-            "temperature" to temperature,
-            "heartRate" to heartRate,
-            "breathRate" to breathRate,
-            "moving" to moving,
-            "barking" to barking
-        )
-
-        dbRef.setValue(data)
     }
 
     fun disconnect() {
