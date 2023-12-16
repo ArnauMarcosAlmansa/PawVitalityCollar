@@ -123,9 +123,9 @@ class SensorsBLEReceiveManager @Inject constructor(
                     coroutineScope.launch {
                         data.emit(Resource.Success(
                             SensorsResult(
-                                0.0f,
-                                0,
-                                0,
+                                -1.0f,
+                                -1,
+                                -1,
                                 false,
                                 false,
                                 ConnectionState.Connected

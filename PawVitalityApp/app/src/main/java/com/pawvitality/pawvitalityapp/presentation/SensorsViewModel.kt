@@ -86,7 +86,9 @@ class SensorsViewModel @Inject constructor(
 
     private fun sendDataToFirebase(temperature: Float, heartRate: Int, breathRate: Int, moving: Boolean, barking: Boolean)
     {
-        cloudFunctions.sendData(temperature, heartRate, breathRate, moving, barking)
+        if (heartRate >= 0) {
+            cloudFunctions.sendData(temperature, heartRate, breathRate, moving, barking)
+        }
     }
 
     fun disconnect() {

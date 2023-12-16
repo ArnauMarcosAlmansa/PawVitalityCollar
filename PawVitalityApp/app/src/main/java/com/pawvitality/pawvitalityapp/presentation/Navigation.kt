@@ -20,7 +20,7 @@ fun Navigation(
     
     NavHost(navController = navController, startDestination = Screen.LoginScreen.route){
         composable(Screen.StartScreen.route){
-            StartScreen(navController = navController, cloudFunctions = CloudFunctionsService())
+            StartScreen(navController = navController, onBluetoothStateChanged, cloudFunctions = CloudFunctionsService())
         }
 
         composable(Screen.SensorsScreen.route){
