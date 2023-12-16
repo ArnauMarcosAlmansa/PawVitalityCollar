@@ -167,7 +167,7 @@ fun StartScreen(
                     //      inclusive = true
                     //}
                     //}
-                    sendDataToFirebase(7.2, 2, 5, true, true)
+                    sendDataToFirebase(cloudFunctions, 7.2f, 2, 5, true, true)
                 },
             contentAlignment = Alignment.Center
         ){
@@ -189,10 +189,14 @@ fun StartScreen(
     }
 }
 
-private fun sendDataToFirebase(
-    temperature: Double, heartRate: Int, breathRate: Int
+private fun sendDataToFirebase(cloudFunctions: CloudFunctionsService,
+    temperature: Float, heartRate: Int, breathRate: Int
     , moving: Boolean, barking: Boolean)
 {
+    cloudFunctions.sendData(temperature, heartRate, breathRate, moving, barking)
+
+    return
+
     val db = Firebase.firestore
     val data = hashMapOf(
         "temperature" to temperature,

@@ -2,17 +2,23 @@ package com.pawvitality.pawvitalityapp.data
 
 import android.util.Log
 import com.google.android.gms.tasks.Task
+import com.google.firebase.database.ktx.database
 import com.google.firebase.functions.HttpsCallableResult
 import com.google.firebase.functions.ktx.functions
 import com.google.firebase.ktx.Firebase
 import com.pawvitality.pawvitalityapp.presentation.HeartRateData
 import com.pawvitality.pawvitalityapp.presentation.LoginScreenState
 import com.pawvitality.pawvitalityapp.presentation.TemperatureData
+import java.text.SimpleDateFormat
+import java.util.Date
+import java.util.Locale
+import javax.inject.Inject
 
-class CloudFunctionsService {
+class CloudFunctionsService @Inject constructor() {
     val functions = Firebase.functions
     val callSetupDatabase = functions.getHttpsCallable("setupDatabase")
     val callGetDataFeedback = functions.getHttpsCallable("getDataFeedback")
+    val callSendData = functions.getHttpsCallable("sendData")
 
     fun setupDatabase(username: String): Task<HttpsCallableResult> {
         val data = hashMapOf(
@@ -109,5 +115,22 @@ class CloudFunctionsService {
         }
 
         return hr
+    }
+
+    fun sendData(temperature: Float, heartRate: Int, breathRate: Int, moving: Boolean, barking: Boolean) {
+        val dateTimeFormat = SimpleDateFormat("yyyy-MM-dd HH:mm:ss", Locale.getDefault())
+        val dateFormat = SimpleDateFormat("yyyy-MM-dd", Locale.getDefault())
+        val data = mapOf(
+            "email" to LoginScreenState.email,
+            "temperature" to temperature,
+            "heartRate" to heartRate,
+            "breathRate" to breathRate,
+            "moving" to moving,
+            "barking" to barking,
+            "day" to dateFormat.format(Date()),
+            "timestamp" to dateTimeFormat.format(Date()),
+        )
+
+        callSendData.call(data)
     }
 }
